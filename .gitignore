@@ -1,3 +1,37 @@
+# Ignore Python cache and environment files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.env
+*.venv
+.env/
+.venv/
+
+# Ignore Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Ignore Docker build artifacts and containers
+*.log
+*.pid
+*.pid.lock
+*.db
+*.sqlite3
+*.sqlite
+*.bak
+*.tmp
+*.swp
+*.swo
+
+# Ignore Docker files
+*.tar
+*.img
+*.container
+
+# Ignore OS generated files
+.DS_Store
+Thumbs.db
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
