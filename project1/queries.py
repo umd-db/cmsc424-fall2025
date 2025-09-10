@@ -35,10 +35,12 @@ select 0;
 """
 
 ### 3. Write a query to find flights that have the most variance in the number of customers. 
-###    Variance here refers to the difference between the maximum and minimum number of customers
-###    that flew on that flight on any given day.
-###    For example, if flight UA101 had 10 customers on 01/01/2025, 10 customers on 01/02/2025, and 8 customers on
-###    01/03/2025, the variance would be 5 (10 - 5).
+###    Variance here refers to the difference between the maximum and minimum number of passengers
+###    over the history of that flight. 
+###    For example, if flight UA101 had 10 passengers on 01/01/2025, 6 passengers on 01/02/2025, and 8 customers on
+###    01/03/2025, the variance would be 4, since the most people who flew UA101 was 10 (the one on Jan 1)
+###    and the least was 6 (the one on Jan 2) and 10 - 6 = 4.
+###    You can assume that the same flight never flies twice on the same day.
 ###    Rank the flights based on this variance, and return the top 10 flights with the highest variance.
 ###    If there is a tie for the 5th position, include all flights that are tied.
 ### HINT: You can use self join to rank customers based on the number of flights
