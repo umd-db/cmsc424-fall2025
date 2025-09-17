@@ -1,6 +1,6 @@
 ## Project 1: SQL Assignment, CMSC424, Fall 2025
 
-### Due Date: Monday, Sep 29, 2025, 11:59pm.
+### Due Date: Wednesday, Oct 2, 2025, 11:59pm.
 
 *The assignment is to be done by yourself.*
 
