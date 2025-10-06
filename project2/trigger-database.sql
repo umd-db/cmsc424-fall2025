@@ -166,4 +166,5 @@ insert into ffairlines (with temp as (select customerid,
                                  ELSE 'BRONZE' END as status
         from flewon natural join flights group by customerid, airlineid)
     select customers.customerid, frequentflieron, coalesce(points,0), coalesce(status,'BRONZE') 
-    from customers left join temp on (customers.customerid = temp.customerid and customers.frequentflieron = temp.airlineid));
+    from customers left join temp on (customers.customerid = temp.customerid and customers.frequentflieron = temp.airlineid)
+    where frequentflieron is not null);
