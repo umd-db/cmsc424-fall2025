@@ -60,7 +60,7 @@ HINT: We have created a view named `flewon_cust7` that lists all the flights cus
 
 Your job is to fill in `<answer1>` and `<answer2>` under the following constraints:
 1. `<answer1>` cannot be a nested query! (i.e. you cannot have the words SELECT or FROM as part of this answer). 
-1. `<answer2>` consists of 6 words, of which two are OUTER JOIN, two are the two tables being joined, and the remaining two can only contain letters a-z (e.g. no punctuation marks or parentheses).
+1. `<answer2>` of which two are OUTER JOIN, and two are the two tables being joined.
 
 
 **Q2 (5pt)**. Let's revisit query 6 from Project 1. Recall that query 6 asked you to write a query to find the percentage participation of American Airlines in each airport, relative to the other airlines.
