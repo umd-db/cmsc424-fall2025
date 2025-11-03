@@ -161,7 +161,7 @@ Familiarize yourself with the code in the 'index' directory since all the change
 ### First Function
 Implement the `LeafNode::toBytes` function that serializes a `LeafNode` into a byte array. This byte array will then be written to disk. The format of the serialization is described in the comments of the `LeafNode::toBytes` function. For an example of how a node is written to disk, see `InnerNode::toBytes`.
 
-Implement the `LeafNode::fromBytes` function that reads a `LeafNode` from a page. The format of the serialization is described in the comments of the `LeafNode::toBytes` function. For an example on how to read a node from disk, see `InnerNode::fromBytes`.
+Implement the `LeafNode::fromBytes` function that deserializes a `LeafNode` from a page. You should refer to the `LeafNode::toBytes` function for the format of the serialization. For an example on how to read a node from disk, see `InnerNode::fromBytes`.
 
 Our implementation of B+ trees assumes that inner nodes and leaf nodes can be serialized on a single page. You do not have to support nodes that span multiple pages.
 
