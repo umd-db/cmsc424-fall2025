@@ -1,5 +1,7 @@
 # Project 3: B+ Trees
 
+Project deadline: 11:59 PM on November 20, 2025.
+
 This project is to be done by yourself.
 
 ## Introduction
@@ -52,7 +54,7 @@ This will run `testFromBytes` in the `TestBPlusNode` class.
 
 As the start of the project, `mvn test` will give out a bunch of error messages. This is normal behavior. You should be able to find a line of output that says something along the lines of
 
-> Tests run: 40, Failures: 0, Errors: 34, Skipped: 0
+> Tests run: 42, Failures: 0, Errors: 40, Skipped: 0
 
 Most tests failed because you have not yet implemented the functions they are testing. However, a few tests will pass out of the box.
 
@@ -159,7 +161,7 @@ There are a few other files that are used to make the tests work that you are we
 Familiarize yourself with the code in the 'index' directory since all the changes that you will make will happen here.
 
 ### First Function
-Implement the `LeafNode::toBytes` function that serializes a `LeafNode` into a byte array. This byte array will then be written to disk. The format of the serialization is described in the comments of the `LeafNode::toBytes` function. For an example of how a node is written to disk, see `InnerNode::toBytes`.
+Implement the `LeafNode::toBytes` function that serializes a `LeafNode` into a byte array. This byte array will be used by some caller to write the node to disk. The format of the serialization is described in the comments of the `LeafNode::toBytes` function. For an example of how a node is written to disk, see `InnerNode::toBytes`.
 
 Implement the `LeafNode::fromBytes` function that deserializes a `LeafNode` from a page. You should refer to the `LeafNode::toBytes` function for the format of the serialization. For an example on how to read a node from disk, see `InnerNode::fromBytes`.
 
