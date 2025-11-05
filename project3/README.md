@@ -161,7 +161,7 @@ There are a few other files that are used to make the tests work that you are we
 Familiarize yourself with the code in the 'index' directory since all the changes that you will make will happen here.
 
 ### First Function
-Implement the `LeafNode::toBytes` function that serializes a `LeafNode` into a byte array. This byte array will be used by the caller to write the node to disk. The format of the serialization is described in the comments of the `LeafNode::toBytes` function. For an example of how a node is written to disk, see `InnerNode::toBytes`.
+Implement the `LeafNode::toBytes` function that serializes a `LeafNode` into a byte array. This byte array will be used by some caller to write the node to disk. The format of the serialization is described in the comments of the `LeafNode::toBytes` function. For an example of how a node is written to disk, see `InnerNode::toBytes`.
 
 Implement the `LeafNode::fromBytes` function that deserializes a `LeafNode` from a page. You should refer to the `LeafNode::toBytes` function for the format of the serialization. For an example on how to read a node from disk, see `InnerNode::fromBytes`.
 
