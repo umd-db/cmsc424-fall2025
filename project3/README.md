@@ -1,5 +1,7 @@
 # Project 3: B+ Trees
 
+Project deadline: 11:59 PM on November 20, 2025.
+
 This project is to be done by yourself.
 
 ## Introduction
@@ -52,7 +54,7 @@ This will run `testFromBytes` in the `TestBPlusNode` class.
 
 As the start of the project, `mvn test` will give out a bunch of error messages. This is normal behavior. You should be able to find a line of output that says something along the lines of
 
-> Tests run: 40, Failures: 0, Errors: 34, Skipped: 0
+> Tests run: 42, Failures: 0, Errors: 40, Skipped: 0
 
 Most tests failed because you have not yet implemented the functions they are testing. However, a few tests will pass out of the box.
 
