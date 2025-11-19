@@ -4,7 +4,12 @@
 
 We will be using the same environment as the previous project.
 
-Again, for this project, we highly recommend you install/use an IDE like [Eclipse](https://www.eclipse.org/downloads/). In Eclipse, import this project with: File > import > maven > existing maven project.
+**NOTE**: We highly recommend using IntelliJ for this project, as it tends to handle Maven projects better than Eclipse.
+
+Like project3, we recommend you install/use an IDE. Here are some popular options:
+1. [IntelliJ](https://www.jetbrains.com/idea/download) (download the community edition). Open the project4 folder and choose "maven project" when prompted. You may also see a "JDK is not defined" warning when opening a file. Click "Setup JDK" and "Download JDK" to set the project up. IntelliJ is known to be slow during startup, so it may take a while for it to finish initializing.
+2. [Eclipse](https://www.eclipse.org/downloads/). In Eclipse, import this project with: File > import > maven > existing maven project.
+3. An editor of your choice such as VS Code. Note that you may need to manually [install OpenJDK](https://adoptium.net/temurin/releases/), [download maven](https://maven.apache.org/download.cgi), and [install maven](https://maven.apache.org/install.html) in order to run the project locally. Alternatively, you can use the `mvnw` file in the project directory to set up maven for you. TAs may only be able to provide limited assistance if you choose this route since the setup process varies by person and by editor.
 
 Alternatively, you can run the project within a Docker environment, which can be started with the following command. Make sure that the current directory is the directory of the project:
 
@@ -70,6 +75,10 @@ The `query` directory contains what are called query operators. These are operat
 `JoinOperator` is the base class that join operators you will implement extend. It contains any methods you might need to deal with tables through the current running transaction. This means you should not deal directly with `Table` objects in the `Query` directory, but only through methods given through the current transaction.
 
 
+### Special Index
+To support one of your join algorithms, index nested loop join, we have provided a special type of index called a `SpecialIndex` (index/SpecialIndex.java). This index supports basic index operations like `get`, `put`, and `remove`.
+
+
 ## Your Tasks
 
 You need to implement all unsupported operators which are marked by:
@@ -93,6 +102,7 @@ There are three types of join algorithms in the codebase (See section 15.5.2 of 
 - SNLJ: Simple Nested Loop Join
 - BNLJ: Block Nested Loop Join
 - BNLJOptimized: Optimized Block Nested Loop Join
+- INLJ: Index Nested Loop Join
 
 Move to the `query` directory. You may first want to take a look at `SNLJOperator`. Complete `BNLJOperator` and `BNLJOptimizedOperator`. The BNLJ and Optimized BNLJ tests in `TestJoinOperator` should pass once this is complete.
 
@@ -102,6 +112,8 @@ Sometimes BNLJ is also called PNLJ. Similarly, BNLJOptimized is called BNLJ.
 
 **Hint:** BNLJ and BNLJOptimized extend from `JoinOperator`. You should be familiar with this class, it contains some useful methods which can help you get the different iterators such as `getPageIterator`, `getRecordIterator` and `getBlockIterator`. 
 **NOTE:** BNLJOptimized needs access to numBuffer, you may use that number from `BNLJOptimizedOperator`.
+
+For INLJ, complete `INLJOperator.java`. The INLJ tests in `TestINLJOperator` should pass once this is complete.
 
 ### 3: External Sort
 
@@ -137,6 +149,7 @@ Just submit the following files to Gradescope.
 ├── Table.java
 ├── BNLJOperator.java
 ├── BNLJOptimizedOperator.java
+├── INLJOperator.java
 ├── SortMergeOperator.java
 ├── SortOperator.java
 └── HashJoinOperator.java
