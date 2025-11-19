@@ -322,7 +322,7 @@ abstract class BPlusNode {
         return k;
     }
 
-    /** Serializes this leaf to its page. */
+    /** Serializes this node to its page. */
     protected void sync(BaseTransaction transaction) {
         Buffer b = getPage().getBuffer(transaction);
         byte[] newBytes = toBytes();
