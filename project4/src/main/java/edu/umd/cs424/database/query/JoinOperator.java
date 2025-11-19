@@ -24,7 +24,8 @@ public abstract class JoinOperator extends QueryOperator {
         BNLJOPTIMIZED,
         GRACEHASH,
         SORTMERGE,
-        HASHJOIN
+        HASHJOIN,
+        INDEX
     }
 
     private JoinType joinType;

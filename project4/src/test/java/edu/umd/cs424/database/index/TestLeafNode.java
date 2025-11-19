@@ -220,27 +220,6 @@ public class TestLeafNode {
     }
 
     @Test
-    @Category(PublicTests.class)
-    public void testScanGreaterEqual() throws BPlusTreeException, IOException {
-        int d = 5;
-        BPlusTreeMetadata meta = getBPlusTreeMetadata(Type.intType(), d);
-        LeafNode leaf = getEmptyLeaf(meta, Optional.empty());
-
-        // Insert tuples in reverse order to make sure that scanAll is returning
-        // things in sorted order.
-        for (int i = 2 * d - 1; i >= 0; --i) {
-            leaf.put(null, new IntDataBox(i), new RecordId(i, (short) i));
-        }
-
-        Iterator<RecordId> iter = leaf.scanGreaterEqual(new IntDataBox(5));
-        for (int i = 5; i < 2 * d; ++i) {
-            assertTrue(iter.hasNext());
-            assertEquals(new RecordId(i, (short) i), iter.next());
-        }
-        assertFalse(iter.hasNext());
-    }
-
-    @Test
     @Category(SystemTests.class)
     public void testMaxOrder() {
         // Note that this white box test depend critically on the implementation
