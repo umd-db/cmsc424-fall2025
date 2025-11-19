@@ -20,10 +20,11 @@ docker run -v $PWD:/project4 -ti --rm -w /project4 maven:3.9.0-eclipse-temurin-1
 In the terminal of the Docker container, you can compile and run the tests with the following commands:
 
 ```bash
-    # build code without testing
-    mvn compile
-    # build code and run unit tests
-    mvn test
+# build code without testing
+mvn compile
+
+# build code and run unit tests
+mvn test
 ```
 
 ## The Project Files
