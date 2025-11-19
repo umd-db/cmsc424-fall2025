@@ -1,5 +1,24 @@
 package edu.umd.cs424.database;
 
+import edu.umd.cs424.database.common.BacktrackingIterator;
+import edu.umd.cs424.database.common.Pair;
+import edu.umd.cs424.database.concurrency.DummyLockManager;
+import edu.umd.cs424.database.concurrency.LockContext;
+import edu.umd.cs424.database.concurrency.LockManager;
+import edu.umd.cs424.database.concurrency.LockType;
+import edu.umd.cs424.database.databox.DataBox;
+import edu.umd.cs424.database.databox.Type;
+import edu.umd.cs424.database.index.BPlusTreeException;
+import edu.umd.cs424.database.index.SpecialTree;
+import edu.umd.cs424.database.io.Page;
+import edu.umd.cs424.database.io.PageAllocator.PageIterator;
+import edu.umd.cs424.database.query.QueryPlan;
+import edu.umd.cs424.database.query.QueryPlanException;
+import edu.umd.cs424.database.query.SortOperator;
+import edu.umd.cs424.database.table.*;
+import edu.umd.cs424.database.table.Record;
+import edu.umd.cs424.database.table.stats.TableStats;
+
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -8,28 +27,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
-import edu.umd.cs424.database.common.BacktrackingIterator;
-import edu.umd.cs424.database.common.Pair;
-import edu.umd.cs424.database.concurrency.*;
-import edu.umd.cs424.database.databox.DataBox;
-import edu.umd.cs424.database.databox.Type;
-import edu.umd.cs424.database.index.BPlusTree;
-import edu.umd.cs424.database.index.BPlusTreeException;
-import edu.umd.cs424.database.io.Page;
-import edu.umd.cs424.database.query.QueryPlan;
-import edu.umd.cs424.database.query.QueryPlanException;
-import edu.umd.cs424.database.query.SortOperator;
-import edu.umd.cs424.database.table.Record;
-import edu.umd.cs424.database.table.RecordId;
-import edu.umd.cs424.database.table.RecordIterator;
-import edu.umd.cs424.database.table.Schema;
-import edu.umd.cs424.database.table.Table;
-import edu.umd.cs424.database.table.stats.TableStats;
-import edu.umd.cs424.database.io.PageAllocator.PageIterator;
-
 public class Database {
     private Map<String, Table> tableLookup;
-    private Map<String, BPlusTree> indexLookup;
+    private Map<String, SpecialTree> indexLookup;
     private Map<String, List<String>> tableIndices;
     private Map<Long, Transaction> activeTransactions;
     private long numTransactions;
@@ -44,13 +44,13 @@ public class Database {
      * @throws DatabaseException
      */
     public Database(String fileDir) throws DatabaseException {
-        this (fileDir, 5);
+        this(fileDir, 5);
     }
 
     /**
      * Creates a new database with locking disabled.
      *
-     * @param fileDir the directory to put the table files in
+     * @param fileDir        the directory to put the table files in
      * @param numMemoryPages the number of pages of memory Database Operations should use when executing Queries
      * @throws DatabaseException
      */
@@ -61,13 +61,13 @@ public class Database {
     /**
      * Creates a new database.
      *
-     * @param fileDir the directory to put the table files in
+     * @param fileDir        the directory to put the table files in
      * @param numMemoryPages the number of pages of memory Database Operations should use when executing Queries
-     * @param lockManager the lock manager
+     * @param lockManager    the lock manager
      * @throws DatabaseException
      */
     public Database(String fileDir, int numMemoryPages, LockManager lockManager)
-    throws DatabaseException {
+            throws DatabaseException {
         this.numMemoryPages = numMemoryPages;
         this.fileDir = fileDir;
         numTransactions = 0;
@@ -98,11 +98,11 @@ public class Database {
                     if (!tableIndices.containsKey(tableName)) {
                         tableIndices.put(tableName, new ArrayList<>());
                     }
-                } else if (fName.endsWith(BPlusTree.FILENAME_EXTENSION)) {
-                    int lastIndex = fName.lastIndexOf(BPlusTree.FILENAME_EXTENSION);
+                } else if (fName.endsWith(SpecialTree.FILENAME_EXTENSION)) {
+                    int lastIndex = fName.lastIndexOf(SpecialTree.FILENAME_EXTENSION);
                     String indexName = fName.substring(0, lastIndex);
                     String tableName = indexName.split(",", 2)[0];
-                    indexLookup.put(indexName, new BPlusTree(f.toString(), getIndexContext(indexName),
+                    indexLookup.put(indexName, new SpecialTree(f.toString(), getIndexContext(indexName),
                             initTransaction));
                     if (!tableIndices.containsKey(tableName)) {
                         tableIndices.put(tableName, new ArrayList<>());
@@ -124,7 +124,7 @@ public class Database {
                 t.close();
             }
 
-            for (BPlusTree t : this.indexLookup.values()) {
+            for (SpecialTree t : this.indexLookup.values()) {
                 t.close();
             }
 
@@ -194,7 +194,7 @@ public class Database {
         }
 
         public void end() {
-            assert(this.active);
+            assert (this.active);
 
             deleteAllTempTables();
             this.active = false;
@@ -204,7 +204,7 @@ public class Database {
         /**
          * Create a new table in this database.
          *
-         * @param s the table schema
+         * @param s         the table schema
          * @param tableName the name of the table
          * @throws DatabaseException
          */
@@ -217,14 +217,15 @@ public class Database {
 
             Path path = Paths.get(fileDir, tableName + Table.FILENAME_EXTENSION);
             Database.this.tableLookup.put(tableName, newTable(tableName, s, path.toString(), tableContext,
-                                          this));
+                    this));
             Database.this.tableIndices.put(tableName, new ArrayList<>());
         }
 
         /**
          * Create a new table in this database with an index on each of the given column names.
-         * @param s the table schema
-         * @param tableName the name of the table
+         *
+         * @param s            the table schema
+         * @param tableName    the name of the table
          * @param indexColumns the list of unique columnNames on the maintain an index on
          * @throws DatabaseException
          */
@@ -255,17 +256,17 @@ public class Database {
 
             Path path = Paths.get(fileDir, tableName + Table.FILENAME_EXTENSION);
             Database.this.tableLookup.put(tableName, newTable(tableName, s, path.toString(), tableContext,
-                                          this));
+                    this));
             Database.this.tableIndices.put(tableName, new ArrayList<>());
             for (int i : schemaColIndex) {
                 String colName = schemaColNames.get(i);
                 Type colType = schemaColType.get(i);
                 String indexName = tableName + "," + colName;
-                Path p = Paths.get(Database.this.fileDir, indexName + BPlusTree.FILENAME_EXTENSION);
+                Path p = Paths.get(Database.this.fileDir, indexName + SpecialTree.FILENAME_EXTENSION);
                 LockContext indexContext = getIndexContext(indexName);
                 try {
-                    Database.this.indexLookup.put(indexName, new BPlusTree(p.toString(), colType,
-                                                  BPlusTree.maxOrder(Page.pageSize, colType), indexContext, this));
+                    Database.this.indexLookup.put(indexName, new SpecialTree(p.toString(), colType,
+                            SpecialTree.maxOrder(Page.pageSize, colType), indexContext, this));
                     Database.this.tableIndices.get(tableName).add(indexName);
                 } catch (BPlusTreeException e) {
                     throw new DatabaseException(e.getMessage());
@@ -297,7 +298,7 @@ public class Database {
                 Database.this.indexLookup.get(indexName).close();
                 Database.this.indexLookup.remove(indexName);
 
-                File indexFile = new File(fileDir + indexName + BPlusTree.FILENAME_EXTENSION);
+                File indexFile = new File(fileDir + indexName + SpecialTree.FILENAME_EXTENSION);
                 indexFile.delete();
             }
             Database.this.tableIndices.remove(tableName);
@@ -317,12 +318,12 @@ public class Database {
         }
 
         public QueryPlan query(String tableName) throws DatabaseException {
-            assert(this.active);
+            assert (this.active);
             return new QueryPlan(this, tableName);
         }
 
         public void queryAs(String tableName, String alias) throws DatabaseException {
-            assert(this.active);
+            assert (this.active);
 
             if (Database.this.tableLookup.containsKey(alias)
                     || this.tempTables.containsKey(alias)
@@ -340,7 +341,7 @@ public class Database {
         }
 
         public String createTempTable(Schema schema) throws DatabaseException {
-            assert(this.active);
+            assert (this.active);
             String tempTableName = "tempTable" + tempTableCounter;
             tempTableCounter++;
             createTempTable(schema, tempTableName);
@@ -348,10 +349,10 @@ public class Database {
         }
 
         public void createTempTable(Schema schema, String tempTableName) throws DatabaseException {
-            assert(this.active);
+            assert (this.active);
 
             if (Database.this.tableLookup.containsKey(tempTableName)
-                    || this.tempTables.containsKey(tempTableName))  {
+                    || this.tempTables.containsKey(tempTableName)) {
                 throw new DatabaseException("Table name already exists");
             }
 
@@ -364,7 +365,7 @@ public class Database {
             Path path = Paths.get(Database.this.fileDir, "temp", tempTableName + Table.FILENAME_EXTENSION);
             LockContext lockContext = lockManager.orphanContext("temp-" + tempTableName);
             this.tempTables.put(tempTableName, newTable(tempTableName, schema, path.toString(), lockContext,
-                                this));
+                    this));
         }
 
         public boolean indexExists(String tableName, String columnName) {
@@ -379,13 +380,13 @@ public class Database {
         public Iterator<Record> sortedScan(String tableName, String columnName) throws DatabaseException {
             Table tab = getTable(tableName);
             try {
-                Pair<String, BPlusTree> index = resolveIndexFromName(tableName, columnName);
+                Pair<String, SpecialTree> index = resolveIndexFromName(tableName, columnName);
                 return new RecordIterator(this, tab, index.getSecond().scanAll(this));
             } catch (DatabaseException e1) {
                 int offset = getTable(tableName).getSchema().getFieldNames().indexOf(columnName);
                 try {
                     return new SortOperator(this, tableName,
-                                            Comparator.comparing((Record r) -> r.getValues().get(offset))).iterator();
+                            Comparator.comparing((Record r) -> r.getValues().get(offset))).iterator();
                 } catch (QueryPlanException e2) {
                     throw new DatabaseException(e2);
                 }
@@ -395,24 +396,24 @@ public class Database {
         public Iterator<Record> sortedScanFrom(String tableName, String columnName,
                                                DataBox startValue) throws DatabaseException {
             Table tab = getTable(tableName);
-            Pair<String, BPlusTree> index = resolveIndexFromName(tableName, columnName);
+            Pair<String, SpecialTree> index = resolveIndexFromName(tableName, columnName);
             return new RecordIterator(this, tab, index.getSecond().scanGreaterEqual(this, startValue));
         }
 
         public Iterator<Record> lookupKey(String tableName, String columnName,
                                           DataBox key) throws DatabaseException {
             Table tab = getTable(tableName);
-            Pair<String, BPlusTree> index = resolveIndexFromName(tableName, columnName);
+            Pair<String, SpecialTree> index = resolveIndexFromName(tableName, columnName);
             return new RecordIterator(this, tab, index.getSecond().scanEqual(this, key));
         }
 
         public boolean contains(String tableName, String columnName, DataBox key) throws DatabaseException {
-            Pair<String, BPlusTree> index = resolveIndexFromName(tableName, columnName);
+            Pair<String, SpecialTree> index = resolveIndexFromName(tableName, columnName);
             return index.getSecond().get(this, key).isPresent();
         }
 
         public RecordId addRecord(String tableName, List<DataBox> values) throws DatabaseException {
-            assert(this.active);
+            assert (this.active);
 
             Table tab = getTable(tableName);
             RecordId rid = tab.addRecord(this, values);
@@ -433,12 +434,12 @@ public class Database {
         }
 
         public int getNumMemoryPages() throws DatabaseException {
-            assert(this.active);
+            assert (this.active);
             return Database.this.numMemoryPages;
         }
 
-        public RecordId deleteRecord(String tableName, RecordId rid)  throws DatabaseException {
-            assert(this.active);
+        public RecordId deleteRecord(String tableName, RecordId rid) throws DatabaseException {
+            assert (this.active);
 
             Table tab = getTable(tableName);
             Schema s = tab.getSchema();
@@ -457,45 +458,45 @@ public class Database {
         }
 
         public Record getRecord(String tableName, RecordId rid) throws DatabaseException {
-            assert(this.active);
+            assert (this.active);
             return getTable(tableName).getRecord(this, rid);
         }
 
         public RecordIterator getRecordIterator(String tableName) throws DatabaseException {
-            assert(this.active);
+            assert (this.active);
             return getTable(tableName).iterator(this);
         }
 
         public RecordId updateRecord(String tableName, List<DataBox> values,
-                                     RecordId rid)  throws DatabaseException {
+                                     RecordId rid) throws DatabaseException {
             return runUpdateRecord(tableName, values, rid);
         }
 
         public PageIterator getPageIterator(String tableName) throws DatabaseException {
-            assert(this.active);
+            assert (this.active);
             return getTable(tableName).getAllocator().iterator(this);
         }
 
         public BacktrackingIterator<Record> getBlockIterator(String tableName,
-                Page[] block) throws DatabaseException {
-            assert(this.active);
+                                                             Page[] block) throws DatabaseException {
+            assert (this.active);
             return getTable(tableName).blockIterator(this, block);
         }
 
         public BacktrackingIterator<Record> getBlockIterator(String tableName,
-                BacktrackingIterator<Page> block) throws DatabaseException {
-            assert(this.active);
+                                                             BacktrackingIterator<Page> block) throws DatabaseException {
+            assert (this.active);
             return getTable(tableName).blockIterator(this, block);
         }
 
         public BacktrackingIterator<Record> getBlockIterator(String tableName, Iterator<Page> block,
-                int maxPages) throws DatabaseException {
-            assert(this.active);
+                                                             int maxPages) throws DatabaseException {
+            assert (this.active);
             return getTable(tableName).blockIterator(this, block, maxPages);
         }
 
         public RecordId runUpdateRecordWhere(String tableName, String targetColumnName, DataBox targetVaue,
-                                             String predColumnName, DataBox predValue)  throws DatabaseException {
+                                             String predColumnName, DataBox predValue) throws DatabaseException {
             Table tab = getTable(tableName);
             Iterator<RecordId> recordIds = tab.ridIterator(this);
 
@@ -503,7 +504,7 @@ public class Database {
             int uindex = s.getFieldNames().indexOf(targetColumnName);
             int pindex = s.getFieldNames().indexOf(predColumnName);
 
-            while(recordIds.hasNext()) {
+            while (recordIds.hasNext()) {
                 RecordId curRID = recordIds.next();
                 Record cur = getRecord(tableName, curRID);
                 List<DataBox> record_copy = new ArrayList<DataBox>(cur.getValues());
@@ -518,7 +519,7 @@ public class Database {
 
         private RecordId runUpdateRecord(String tableName, List<DataBox> values,
                                          RecordId rid) throws DatabaseException {
-            assert(this.active);
+            assert (this.active);
             Table tab = getTable(tableName);
             Schema s = tab.getSchema();
 
@@ -530,7 +531,7 @@ public class Database {
             for (int i = 0; i < colNames.size(); i++) {
                 String col = colNames.get(i);
                 if (indexExists(tableName, col)) {
-                    BPlusTree tree = resolveIndexFromName(tableName, col).getSecond();
+                    SpecialTree tree = resolveIndexFromName(tableName, col).getSecond();
                     tree.remove(this, oldValues.get(i));
                     try {
                         tree.put(this, values.get(i), rid);
@@ -544,52 +545,52 @@ public class Database {
         }
 
         public TableStats getStats(String tableName) throws DatabaseException {
-            assert(this.active);
+            assert (this.active);
             return getTable(tableName).getStats();
         }
 
         public int getNumDataPages(String tableName) throws DatabaseException {
-            assert(this.active);
+            assert (this.active);
             return getTable(tableName).getNumDataPages();
         }
 
         public int getNumEntriesPerPage(String tableName) throws DatabaseException {
-            assert(this.active);
+            assert (this.active);
             return getTable(tableName).getNumRecordsPerPage();
         }
 
         public byte[] readPageHeader(String tableName, Page p) throws DatabaseException {
-            assert(this.active);
+            assert (this.active);
             return getTable(tableName).getBitMap(this, p);
         }
 
         public int getPageHeaderSize(String tableName) throws DatabaseException {
-            assert(this.active);
+            assert (this.active);
             return getTable(tableName).getBitmapSizeInBytes();
         }
 
         public int getEntrySize(String tableName) throws DatabaseException {
-            assert(this.active);
+            assert (this.active);
             return getTable(tableName).getSchema().getSizeInBytes();
         }
 
         public long getNumRecords(String tableName) throws DatabaseException {
-            assert(this.active);
+            assert (this.active);
             return getTable(tableName).getNumRecords();
         }
 
         public int getNumIndexPages(String tableName, String columnName) throws DatabaseException {
-            assert(this.active);
+            assert (this.active);
             return this.resolveIndexFromName(tableName, columnName).getSecond().getNumPages();
         }
 
         public Schema getSchema(String tableName) throws DatabaseException {
-            assert(this.active);
+            assert (this.active);
             return getTable(tableName).getSchema();
         }
 
         public Schema getFullyQualifiedSchema(String tableName) throws DatabaseException {
-            assert(this.active);
+            assert (this.active);
 
             Schema schema = getTable(tableName).getSchema();
             List<String> newColumnNames = new ArrayList<String>();
@@ -600,8 +601,8 @@ public class Database {
             return new Schema(newColumnNames, schema.getFieldTypes());
         }
 
-        private Pair<String, BPlusTree> resolveIndexFromName(String tableName,
-                String columnName) throws DatabaseException {
+        private Pair<String, SpecialTree> resolveIndexFromName(String tableName,
+                                                               String columnName) throws DatabaseException {
             while (aliasMaps.containsKey(tableName)) {
                 tableName = aliasMaps.get(tableName);
             }
@@ -639,7 +640,7 @@ public class Database {
         }
 
         public void deleteTempTable(String tempTableName) {
-            assert(this.active);
+            assert (this.active);
 
             if (!this.tempTables.containsKey(tempTableName)) {
                 return;
