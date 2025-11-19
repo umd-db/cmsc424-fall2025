@@ -76,8 +76,8 @@ The `query` directory contains what are called query operators. These are operat
 `JoinOperator` is the base class that join operators you will implement extend. It contains any methods you might need to deal with tables through the current running transaction. This means you should not deal directly with `Table` objects in the `Query` directory, but only through methods given through the current transaction.
 
 
-### Special Index
-To support one of your join algorithms, index nested loop join, we have provided a special type of index called a `SpecialIndex` (index/SpecialIndex.java). This index supports basic index operations like `get`, `put`, and `remove`.
+### Index
+To support one of the join algorithms, IndexNestedLoopJoin, we have provided a special index called `SpecialIndex` (index/SpecialIndex.java). This index supports basic index operations like `get`, `put`, and `remove`. Instead of relying on the BPlusTree implementation from Project 3, it utilizes Java's TreeMap class. However, to any caller, the API and functionality are indistinguishable from the BPlusTree index. 
 
 
 ## Your Tasks
