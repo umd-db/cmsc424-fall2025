@@ -1,5 +1,15 @@
 # Project 4: Implementing Join Algorithms
 
+
+### Due Date: Friday, Dec 12, 2025, 11:59 PM.
+This assignment will **not** take the entire 3 weeks. However, to account for the Thanksgiving break, we are giving you 3 weeks instead of 2 weeks. Due to the university's fall calendar and the additional week we provided for the project, we will not be able to offer extensions or accept late submissions. Due to university policy we can not set assignment deadlines that overlap with the exam schedule.
+
+Hence, **Dec 12, 11:59 PM is a hard deadline.** Please start early and account for any other commitments you may have. 
+
+*The assignment is to be done by yourself.*
+
+Please do a `git pull` to download the directory `project4`.
+
 ## Environment
 
 We will be using the same environment as the previous project.
