@@ -98,7 +98,7 @@ In the `table` directory, fill in the class `Table#RIDPageIterator`. The tests i
 
 ### 2. Nested Loops Joins
 
-There are three types of join algorithms in the codebase (See section 15.5.2 of the textbook):
+There are four types of join algorithms in the codebase (See section 15.5 of the textbook):
 
 - SNLJ: Simple Nested Loop Join
 - BNLJ: Block Nested Loop Join
@@ -109,12 +109,14 @@ Move to the `query` directory. You may first want to take a look at `SNLJOperato
 
 We sometimes use the words `block` and `page` interchangeably to describe a single unit of transfer from disc. 
 The notion of a `block` when discussing join algorithms is different however. A `page` is a single unit of transfer from disc, and a  `block` is one or more `pages`.
-Sometimes BNLJ is also called PNLJ. Similarly, BNLJOptimized is called BNLJ.
+Sometimes BNLJ is also called PageNestedLoopJoin (PNLJ). Similarly, BNLJOptimized is called BlockNestedLoop Join (BNLJ).
 
 **Hint:** BNLJ and BNLJOptimized extend from `JoinOperator`. You should be familiar with this class, it contains some useful methods which can help you get the different iterators such as `getPageIterator`, `getRecordIterator` and `getBlockIterator`. 
 **NOTE:** BNLJOptimized needs access to numBuffer, you may use that number from `BNLJOptimizedOperator`.
 
-For INLJ, complete `INLJOperator.java`. The INLJ tests in `TestINLJOperator` should pass once this is complete.
+To implement BNLJ, refer to the pseudocode in Fig 15.6 of the textbook. Similarly, for BNLJOptimized, refer to the second bullet point on page 707 of the textbook.
+
+For INLJ, complete `INLJOperator.java`. The details of the algorithm can be found in Section 15.5.3 of the textbook. Recall that the index in Project 3 did not support duplicates. Similarly, the SpecialIndex does not support duplicates either. Hence, your implementation is simplified by finding at most one match per left record. The INLJ tests in `TestINLJOperator` should pass once this is complete.
 
 ### 3: External Sort
 

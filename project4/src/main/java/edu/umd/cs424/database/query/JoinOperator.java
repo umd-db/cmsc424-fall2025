@@ -22,10 +22,10 @@ public abstract class JoinOperator extends QueryOperator {
         SNLJ,
         BNLJ,
         BNLJOPTIMIZED,
+        INLJ,
         GRACEHASH,
         SORTMERGE,
-        HASHJOIN,
-        INDEX
+        HASHJOIN
     }
 
     private JoinType joinType;
@@ -99,13 +99,20 @@ public abstract class JoinOperator extends QueryOperator {
         List<Type> leftSchemaTypes = new ArrayList<>(leftSchema.getFieldTypes());
         List<Type> rightSchemaTypes = new ArrayList<>(rightSchema.getFieldTypes());
         if (!leftSchemaTypes.get(this.leftColumnIndex).getClass().equals(rightSchemaTypes.get(
-                    this.rightColumnIndex).getClass())) {
+                this.rightColumnIndex).getClass())) {
             throw new QueryPlanException("Mismatched types of columns " + leftColumnName + " and "
-                                         + rightColumnName + ".");
+                    + rightColumnName + ".");
         }
         leftSchemaNames.addAll(rightSchemaNames);
         leftSchemaTypes.addAll(rightSchemaTypes);
         return new Schema(leftSchemaNames, leftSchemaTypes);
+    }
+    
+    public Record generateJoinRecord(Record leftRecord, Record rightRecord) {
+        List<DataBox> leftValues = new ArrayList<>(leftRecord.getValues());
+        List<DataBox> rightValues = new ArrayList<>(rightRecord.getValues());
+        leftValues.addAll(rightValues);
+        return new Record(leftValues);
     }
 
     public String str() {

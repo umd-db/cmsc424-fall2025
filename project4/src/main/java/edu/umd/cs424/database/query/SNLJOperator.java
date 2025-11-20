@@ -89,10 +89,7 @@ public class SNLJOperator extends JoinOperator {
                     DataBox leftJoinValue = leftRecord.getValues().get(SNLJOperator.this.getLeftColumnIndex());
                     DataBox rightJoinValue = rightRecord.getValues().get(SNLJOperator.this.getRightColumnIndex());
                     if (leftJoinValue.equals(rightJoinValue)) {
-                        List<DataBox> leftValues = new ArrayList<>(this.leftRecord.getValues());
-                        List<DataBox> rightValues = new ArrayList<>(rightRecord.getValues());
-                        leftValues.addAll(rightValues);
-                        return new Record(leftValues);
+                        return generateJoinRecord(rightRecord, rightRecord);
                     }
                 } else if (leftSourceIterator.hasNext()){
                     // there's no more right records but there's still left
