@@ -80,6 +80,12 @@ public class SortOperator {
      * Does an external merge sort on the table with name tableName
      * using numBuffers.
      * Returns the name of the table that backs the final run.
+     * Some key implementation details:
+     * 1. If the table is empty, throw a DatabaseException.
+     * 2. Use a block iterator to read numBuffers - 1 data pages and create a run.
+     *    Remember to skip the header page when necessary.
+     * 3. Sort each newly created run.
+     * 4. Merge the sorted runs.
      */
     public String sort() throws DatabaseException {
         throw new UnsupportedOperationException("Implement this.");
