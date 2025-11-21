@@ -166,36 +166,6 @@ public class TestJoinOperator {
 
     @Test
     @Category(PublicTests.class)
-    public void testSimpleJoinBNLJOptimized() throws QueryPlanException, DatabaseException, IOException {
-        TestSourceOperator sourceOperator = new TestSourceOperator();
-        var transaction = newTransaction();
-        JoinOperator joinOperator = new BNLJOptimizedOperator(sourceOperator, sourceOperator, "int", "int",
-                transaction);
-
-        Iterator<Record> outputIterator = joinOperator.iterator();
-        int numRecords = 0;
-
-        List<DataBox> expectedRecordValues = new ArrayList<DataBox>();
-        expectedRecordValues.add(new BoolDataBox(true));
-        expectedRecordValues.add(new IntDataBox(1));
-        expectedRecordValues.add(new StringDataBox("abcde", 5));
-        expectedRecordValues.add(new FloatDataBox(1.2f));
-        expectedRecordValues.add(new BoolDataBox(true));
-        expectedRecordValues.add(new IntDataBox(1));
-        expectedRecordValues.add(new StringDataBox("abcde", 5));
-        expectedRecordValues.add(new FloatDataBox(1.2f));
-        Record expectedRecord = new Record(expectedRecordValues);
-
-        while (outputIterator.hasNext()) {
-            assertEquals(expectedRecord, outputIterator.next());
-            numRecords++;
-        }
-
-        assertEquals(100 * 100, numRecords);
-    }
-
-    @Test
-    @Category(PublicTests.class)
     public void testSimpleBNLJ_simple() throws DatabaseException, QueryPlanException {
         String leftTableName = "left", rightTableName = "right";
         var transaction = newTransaction();
@@ -424,70 +394,5 @@ public class TestJoinOperator {
         }
 
         assertEquals(288 * 288, numRecords);
-    }
-
-    @Test
-    @Category(PublicTests.class)
-    public void testBNLJOptimizedDiffOutPutThanBNLJ() throws QueryPlanException, DatabaseException, IOException {
-        var transaction = newTransaction(4);
-        Record r1 = TestUtils.createRecordWithAllTypesWithValue(1);
-        List<DataBox> r1Vals = r1.getValues();
-        Record r2 = TestUtils.createRecordWithAllTypesWithValue(2);
-        List<DataBox> r2Vals = r2.getValues();
-        Record r3 = TestUtils.createRecordWithAllTypesWithValue(3);
-        List<DataBox> r3Vals = r3.getValues();
-        Record r4 = TestUtils.createRecordWithAllTypesWithValue(4);
-        List<DataBox> r4Vals = r4.getValues();
-        var expectedRecordValues1 = new ArrayList<DataBox>();
-        var expectedRecordValues2 = new ArrayList<DataBox>();
-        var expectedRecordValues3 = new ArrayList<DataBox>();
-        var expectedRecordValues4 = new ArrayList<DataBox>();
-
-        for (int i = 0; i < 2; i++) {
-            expectedRecordValues1.addAll(r1Vals);
-            expectedRecordValues2.addAll(r2Vals);
-            expectedRecordValues3.addAll(r3Vals);
-            expectedRecordValues4.addAll(r4Vals);
-        }
-        Record expectedRecord1 = new Record(expectedRecordValues1);
-        Record expectedRecord2 = new Record(expectedRecordValues2);
-        Record expectedRecord3 = new Record(expectedRecordValues3);
-        Record expectedRecord4 = new Record(expectedRecordValues4);
-        transaction.createTable(TestUtils.createSchemaWithAllTypes(), "leftTable");
-        transaction.createTable(TestUtils.createSchemaWithAllTypes(), "rightTable");
-        for (int i = 0; i < 2 * 288; i++) {
-            if (i < 144) {
-                transaction.addRecord("leftTable", r1Vals);
-                transaction.addRecord("rightTable", r3Vals);
-            } else if (i < 288) {
-                transaction.addRecord("leftTable", r2Vals);
-                transaction.addRecord("rightTable", r4Vals);
-            } else if (i < 432) {
-                transaction.addRecord("leftTable", r3Vals);
-                transaction.addRecord("rightTable", r1Vals);
-            } else {
-                transaction.addRecord("leftTable", r4Vals);
-                transaction.addRecord("rightTable", r2Vals);
-            }
-        }
-        QueryOperator s1 = new SequentialScanOperator(transaction, "leftTable");
-        QueryOperator s2 = new SequentialScanOperator(transaction, "rightTable");
-        QueryOperator joinOperator = new BNLJOptimizedOperator(s1, s2, "int", "int", transaction);
-        Iterator<Record> outputIterator = joinOperator.iterator();
-        int count = 0;
-        while (outputIterator.hasNext()) {
-            Record r = outputIterator.next();
-            if (count < 144 * 144) {
-                assertEquals(expectedRecord3, r);
-            } else if (count < 2 * 144 * 144) {
-                assertEquals(expectedRecord4, r);
-            } else if (count < 3 * 144 * 144) {
-                assertEquals(expectedRecord1, r);
-            } else {
-                assertEquals(expectedRecord2, r);
-            }
-            count++;
-        }
-        assertEquals(82944, count);
     }
 }

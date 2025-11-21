@@ -21,7 +21,6 @@ public abstract class JoinOperator extends QueryOperator {
     public enum JoinType {
         SNLJ,
         BNLJ,
-        BNLJOPTIMIZED,
         INLJ,
         GRACEHASH,
         SORTMERGE,
