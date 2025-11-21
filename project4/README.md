@@ -1,10 +1,10 @@
 # Project 4: Implementing Join Algorithms
 
 
-### Due Date: Friday, Dec 12, 2025, 11:59 PM.
+### Due Date: Thursday, Dec 11, 2025, 11:59 PM.
 This assignment will **not** take the entire 3 weeks. However, to account for the Thanksgiving break, we are giving you 3 weeks instead of 2 weeks. Due to the university's fall calendar and the additional week we provided for the project, we will not be able to offer extensions or accept late submissions. Due to university policy we can not set assignment deadlines that overlap with the exam schedule.
 
-Hence, **Dec 12, 11:59 PM is a hard deadline.** Please start early and account for any other commitments you may have. 
+Hence, **Dec 11, 11:59 PM is a hard deadline.** Please start early and account for any other commitments you may have. 
 
 *The assignment is to be done by yourself.*
 
@@ -108,23 +108,21 @@ In the `table` directory, fill in the class `Table#RIDPageIterator`. The tests i
 
 ### 2. Nested Loops Joins
 
-There are four types of join algorithms in the codebase (See section 15.5 of the textbook):
+There are three types of join algorithms in the codebase (See section 15.5 of the textbook):
 
 - SNLJ: Simple Nested Loop Join
 - BNLJ: Block Nested Loop Join
-- BNLJOptimized: Optimized Block Nested Loop Join
 - INLJ: Index Nested Loop Join
 
-Move to the `query` directory. You may first want to take a look at `SNLJOperator`. Complete `BNLJOperator` and `BNLJOptimizedOperator`. The BNLJ and Optimized BNLJ tests in `TestJoinOperator` should pass once this is complete.
+Move to the `query` directory. You may first want to take a look at `SNLJOperator`. Complete `BNLJOperator`. The BNLJ tests in `TestJoinOperator` should pass once this is complete.
 
 We sometimes use the words `block` and `page` interchangeably to describe a single unit of transfer from disc. 
 The notion of a `block` when discussing join algorithms is different however. A `page` is a single unit of transfer from disc, and a  `block` is one or more `pages`.
-Sometimes BNLJ is also called PageNestedLoopJoin (PNLJ). Similarly, BNLJOptimized is called BlockNestedLoop Join (BNLJ).
+Sometimes BNLJ is also called PageNestedLoopJoin (PNLJ).
 
-**Hint:** BNLJ and BNLJOptimized extend from `JoinOperator`. You should be familiar with this class, it contains some useful methods which can help you get the different iterators such as `getPageIterator`, `getRecordIterator` and `getBlockIterator`. 
-**NOTE:** BNLJOptimized needs access to numBuffer, you may use that number from `BNLJOptimizedOperator`.
+**Hint:** BNLJ extend from `JoinOperator`. You should be familiar with this class, it contains some useful methods which can help you get the different iterators such as `getPageIterator`, `getRecordIterator` and `getBlockIterator`. 
 
-To implement BNLJ, refer to the pseudocode in Fig 15.6 of the textbook. Similarly, for BNLJOptimized, refer to the second bullet point on page 707 of the textbook.
+To implement BNLJ, refer to the pseudocode in Fig 15.6 of the textbook.
 
 For INLJ, complete `INLJOperator.java`. The details of the algorithm can be found in Section 15.5.3 of the textbook. Recall that the index in Project 3 did not support duplicates. Similarly, the SpecialIndex does not support duplicates either. Hence, your implementation is simplified by finding at most one match per left record. The INLJ tests in `TestINLJOperator` should pass once this is complete.
 
@@ -161,7 +159,6 @@ Just submit the following files to Gradescope.
 ```bash
 ├── Table.java
 ├── BNLJOperator.java
-├── BNLJOptimizedOperator.java
 ├── INLJOperator.java
 ├── SortMergeOperator.java
 ├── SortOperator.java
