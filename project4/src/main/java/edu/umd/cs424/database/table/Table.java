@@ -486,33 +486,47 @@ public class Table implements Closeable {
      * should function.
      */
     public class RIDPageIterator implements BacktrackingIterator<RecordId> {
-        //member variables go here
+        BaseTransaction txn;
 
-        /**
-        * The following method signature is provided for guidance, but not necessary. Feel free to
-        * implement your own solution using whatever helper methods you would like.
-        */
+        ArrayList<Short> recordIds;
+        int pageNum;
+        int cursor;
+        int mark;
 
-        // You do not need to manipulate the transaction parameter, just pass it
-        // into any method that requires a transaction that you need to call.
         public RIDPageIterator(BaseTransaction transaction, Page page) {
-            throw new UnsupportedOperationException("Implement this.");
+            txn = transaction;
+
+            recordIds = new ArrayList<>();
+            pageNum = page.getPageNum();
+
+            cursor = 0;
+            mark = 0;
+
+            byte[] bitmap = getBitMap(transaction, page);
+            for (int i = 0; i < numRecordsPerPage; i++) {
+                if (Bits.getBit(bitmap, i) == Bits.Bit.ONE) {
+                    recordIds.add((short) i);
+                }
+            }
         }
 
         public boolean hasNext() {
-            throw new UnsupportedOperationException("Implement this.");
+            return cursor < recordIds.size();
         }
 
         public RecordId next() {
-            throw new UnsupportedOperationException("Implement this.");
+            if (!hasNext()) {
+                throw new NoSuchElementException();
+            }
+            return new RecordId(pageNum, recordIds.get(cursor++));
         }
 
         public void mark() {
-            throw new UnsupportedOperationException("Implement this.");
+            mark = Math.max(0, cursor - 1);
         }
 
         public void reset() {
-            throw new UnsupportedOperationException("Implement this.");
+            cursor = mark;
         }
     }
 

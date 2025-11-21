@@ -48,7 +48,7 @@ Navigate to the `src/main/java/edu/umd/cs424/database` directory. You
 will find six directories: `common`, `databox`, `io`, `table`, `index`, and `query`, and two files, `Database` and `DatabaseException`.
 You do not have to deeply understand all of the code, but it's worth becoming a little
 familiar with it. **In this assignment, though, you may only modify files in
-the `query` and `table` directories**.
+the `query` directory**.
 
 ### common
 
@@ -100,13 +100,7 @@ throw new UnsupportedOperationException("Implement this.");
 
 We use additional tests to evaluate your solution (in addition to the ones we are providing with this codebase).
 
-### 1. Table Iterators
-
-In the `table` directory, fill in the class `Table#RIDPageIterator`. The tests in `TestTable` should pass once this is complete.
-
-**Hint:** To fill in this iterator, you can start from reading the description of storage format and bitmap at the beginning of the Table class (line 21) in Table.java.
-
-### 2. Nested Loops Joins
+### 1. Nested Loops Joins
 
 There are three types of join algorithms in the codebase (See section 15.5 of the textbook):
 
@@ -126,7 +120,7 @@ To implement BNLJ, refer to the pseudocode in Fig 15.6 of the textbook.
 
 For INLJ, complete `INLJOperator.java`. The details of the algorithm can be found in Section 15.5.3 of the textbook. Recall that the index in Project 3 did not support duplicates. Similarly, the SpecialIndex does not support duplicates either. Hence, your implementation is simplified by finding at most one match per left record. The INLJ tests in `TestINLJOperator` should pass once this is complete.
 
-### 3: External Sort
+### 2: External Sort
 
 Complete implementing `SortOperator.java`. The tests in `TestSortOperator` should pass once this is complete.
 
@@ -134,11 +128,11 @@ Complete implementing `SortOperator.java`. The tests in `TestSortOperator` shoul
 
 **Hint:** To get `numBuffer` pages of records at a time, you need to get `PageIterator` by `transaction.getPageIterator`, then pass `pageIterator` and `numBuffers` to `transaction.getBlockIterator`.
 
-### 4: Sort Merge Join
+### 3: Sort Merge Join
 
 Complete implementing `SortMergeOperator.java`. The SortMerge tests in `TestJoinOperator` should pass once this is complete.
 
-### 5: Hash Join
+### 4: Hash Join
 
 Complete implementing `HashJoinOperator.java`. The tests in `TestHashJoinOperator` should pass once this is complete.
 
@@ -150,14 +144,13 @@ In the `src/test/java/edu/umd/cs424/database` directory, you will find all the u
 
 Remember the test cases we give you are not comprehensive, so you should write your own tests to further test your code and catch edge cases.
 
-The tests we provide to you for this project are under `table/TestTable.java` for part 1, `query/TestJoinOperator` for parts 2 and 4, `query/TestSortOperator` for part 3, and `query/TestHashJoinOperator` for part 5.
+The tests we provide to you for this project are under `query/TestJoinOperator` and `query/TestINLJOperator` for parts 1 and 3, and `query/TestSortOperator` for part 2, and `query/TestHashJoinOperator` for part 4.
 
 ## Submitting
 
 Just submit the following files to Gradescope.
 
 ```bash
-├── Table.java
 ├── BNLJOperator.java
 ├── INLJOperator.java
 ├── SortMergeOperator.java
